@@ -1,6 +1,9 @@
 package com.test.kopnus.utils;
 
+import com.google.gson.Gson;
+import com.test.kopnus.model.entity.UserEntity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -56,22 +59,25 @@ public class JwtUtil {
     // simplicity.
     private static String SECRET_KEY = "oeRaYY7Wo24sDqKSX3IM9ASGmdGPmkTd9jo1QTy4b7P9Ze5_9hKolVX8xNrQDcNRfVEdTZNOuOyqEGhXEbdJI-ZQ19k_o9MI0y3eZN2lp9jow55FfXMiINEdt1XR85VipRLSOkT6kSpzs2x-jbLDiz9iFVzkd81YKxMgPA7VfZeQUm4n-mOmnWMaVX30zGFU4L3oPBctYKkl4dYfqYWqRNfrgPJVi5DGFjywgxx0ASEiJHtV72paI3fDR2XwlSkyhhmY-ICjCRmsJN4fX1pdoL8a18-aQrvyu4j0Os6dVPYIoPvvY0SAZtWYKHfM15g7A3HD4cVREf9cUsprCRK93w";
 
+    public static final String DEFAULT_USERNAME_KEY = "username";
     //Sample method to construct a JWT
-    public static String createJWT(String id, String issuer, String subject, long ttlMillis, String username) {
+    public static String createJWT(String id, String issuer, String subject, long ttlMillis, UserEntity userEntity) {
 
         //The JWT signature algorithm we will be using to sign the token
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
-        long nowMillis = System.currentTimeMillis();
-        Date now = new Date(nowMillis);
+        //long nowMillis = System.currentTimeMillis();
+        Date now = new Date(ttlMillis);
 
         //We will sign our JWT with our ApiKey secret
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
+        String jsonUserEntity = new Gson().toJson(userEntity);
         //Let's set the JWT Claims
         JwtBuilder builder = Jwts.builder().setId(id)
-                .setClaims(new HashMap<>(){{ put("username", username); }})
+                .claim(DEFAULT_USERNAME_KEY, jsonUserEntity)
+                //.setClaims(new HashMap<String, Object>(){{ put("DEFAULT_USERNAME_KEY", jsonUserEntity); }})
                 .setIssuedAt(now)
                 .setSubject(subject)
                 .setIssuer(issuer)
@@ -79,8 +85,8 @@ public class JwtUtil {
 
         //if it has been specified, let's add the expiration
         if (ttlMillis >= 0) {
-            long expMillis = nowMillis + ttlMillis;
-            Date exp = new Date(expMillis);
+            //long expMillis = nowMillis + ttlMillis;
+            Date exp = DateUtils.addDays(new Date(ttlMillis), 2);
             builder.setExpiration(exp);
         }
 

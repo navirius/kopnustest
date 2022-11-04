@@ -45,9 +45,5 @@ public class UserEntity {
         return 0;
     }
 
-    @JsonIgnore
-    @JoinColumn(name = "level", referencedColumnName = "levelid", updatable = false, insertable = false)
-    @OneToOne
-    @Setter(AccessLevel.NONE)
-    private LevelEntity userLevel;
+
 }
