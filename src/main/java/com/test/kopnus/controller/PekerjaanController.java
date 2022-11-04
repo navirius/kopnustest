@@ -5,6 +5,7 @@ import com.test.kopnus.repository.PekerjaanUserRepository;
 import com.test.kopnus.response.ErrorResponse;
 import com.test.kopnus.response.SuccessResponse;
 import com.test.kopnus.service.ValidationService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class PekerjaanController {
     @Autowired
     PekerjaanUserRepository pekerjaanUserRepository;
 
+    @Operation(description = "mendapatkan semua pekerjaan berdasarkan userid")
     @GetMapping("pekerjan-by-user/{userId}")
     public ResponseEntity getPekerjaanByUser(Integer userId, @RequestHeader("Authorization")String authHeader){
         if(!validationService.authorizationHeaderValidation(authHeader)){
